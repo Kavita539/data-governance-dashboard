@@ -58,7 +58,17 @@ export default function CostOptimization() {
         fmtCost={fmtCost}
       />
 
-      <Grid container spacing={2} alignItems="flex-start">
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          display: { md: "grid" },
+          gridTemplateColumns: { md: "1fr 600px" },
+          gap: "16px",
+          alignItems: "start",
+          width: "100%",
+        }}
+      >
         <Grid item xs={12} md={8}>
           <TiersPanel
             tiers={tiers}
@@ -70,7 +80,14 @@ export default function CostOptimization() {
             fmtCost={fmtCost}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid
+          item
+          xs={12}
+          sx={{
+            maxWidth: { md: "100%" },
+            flexBasis: { md: "auto" },
+          }}
+        >
           <RecsPanel
             recs={recs}
             taskDone={taskDone}

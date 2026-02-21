@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+
 import RecCard from "./RecCard";
 import ColumnsList from "./ColumnsList";
 

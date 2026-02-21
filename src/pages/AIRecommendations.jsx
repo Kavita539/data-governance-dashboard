@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Alert, Box, Grid, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Grid,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 
 import DetailPanel from "../components/AIRecommendations/DetailPanel";
 import TableList from "../components/AIRecommendations/TableList";
@@ -18,6 +25,9 @@ export default function AIRecommendations() {
   const [dismissed, setDismissed] = useState({});
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const enriched = tables.map((t) => ({
     ...t,
@@ -67,10 +77,11 @@ export default function AIRecommendations() {
     }
   }
 
-  if (loading) return <Loader text="Loading" />;
+  if (loading && tables.length === 0)
+    return <Loader text="Loading Catalog..." />;
 
   return (
-    <Box>
+    <Box sx={{ width: "100%", m: "0px" }}>
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -97,8 +108,25 @@ export default function AIRecommendations() {
         totalRecs={withIssues.reduce((s, t) => s + t.recs.length, 0)}
       />
 
-      <Grid container spacing={2} alignItems="flex-start">
-        <Grid item xs={12} md={8}>
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          display: { md: "grid" },
+          gridTemplateColumns: { md: "1fr 600px" },
+          gap: "16px",
+          alignItems: "start",
+          width: "100%",
+        }}
+      >
+        <Grid
+          item
+          xs={12}
+          sx={{
+            maxWidth: { md: "100%" },
+            flexBasis: { md: "auto" },
+          }}
+        >
           <TableList
             tables={tables}
             filtered={filtered}
@@ -112,7 +140,15 @@ export default function AIRecommendations() {
             onRefresh={refresh}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid
+          item
+          xs={12}
+          sx={{
+            position: { md: "sticky" },
+            top: { md: "20px" },
+            width: "100%",
+          }}
+        >
           {selectedFresh ? (
             <DetailPanel
               table={selectedFresh}

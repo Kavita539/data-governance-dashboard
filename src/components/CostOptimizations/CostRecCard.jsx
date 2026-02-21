@@ -117,7 +117,7 @@ export default function CostRecCard({ rec, isDone, onCreateTask, fmtCost }) {
           disabled={isDone}
           onClick={onCreateTask}
         >
-          {isDone ? "✓ Task Created" : "+ Create Task"}
+          {isDone ? "Task Created" : "+ Create Task"}
         </Button>
       </Box>
     </Box>

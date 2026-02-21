@@ -30,6 +30,7 @@ export default function ColumnsList({ columns }) {
           py={0.75}
           borderBottom="1px solid"
           borderColor="divider"
+          sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}
         >
           <Typography fontFamily="monospace" fontSize={12} flex={1}>
             {col.name}
@@ -50,11 +51,17 @@ export default function ColumnsList({ columns }) {
                 size="small"
                 color="secondary"
                 variant="outlined"
+                sx={{ maxWidth: "100px" }}
               />
             ))}
             {/email|phone|ssn|address|ip_address/i.test(col.name) &&
               !col.tags?.some((t) => t.tagFQN?.startsWith("PII")) && (
-                <Chip label="⚠ PII?" size="small" color="error" />
+                <Chip
+                  label="⚠ PII?"
+                  size="small"
+                  color="error"
+                  sx={{ maxWidth: "100px" }}
+                />
               )}
           </Box>
         </Box>
