@@ -138,6 +138,7 @@ export default function AIRecommendations() {
             onFilter={setFilter}
             onSelect={setSelected}
             onRefresh={refresh}
+            loading={loading}
           />
         </Grid>
         <Grid

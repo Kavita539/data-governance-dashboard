@@ -14,10 +14,9 @@ import {
   generateCostRecommendations,
   tierCost,
 } from "../api/governance";
+import { fmtCost } from "../helpers/helper";
+import { TIER_ORDER } from "../constants/constants";
 
-const TIER_ORDER = ["T1", "T2", "T3", "T4", "T5"];
-
-const fmtCost = (n) => (n >= 1000 ? `$${(n / 1000).toFixed(1)}K` : `$${n}`);
 
 export default function CostOptimization() {
   const { tables, loading, error } = useTables();

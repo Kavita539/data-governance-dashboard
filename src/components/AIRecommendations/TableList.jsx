@@ -12,13 +12,13 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
+  Skeleton,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
-const FILTERS = ["All", "High", "PII", "No Owner", "No Description"];
+import { renderSkeletons, severityColor } from "../../helpers/helper";
+import { FILTERS } from "../../constants/constants";
 
-const severityColor = (issues) =>
-  issues.some((i) => i.severity === "high") ? "error.main" : "warning.main";
 
 export default function TableList({
   tables,
@@ -31,6 +31,7 @@ export default function TableList({
   onFilter,
   onSelect,
   onRefresh,
+  loading,
 }) {
   return (
     <Box>
@@ -39,6 +40,7 @@ export default function TableList({
           size="small"
           placeholder="Search tables..."
           value={search}
+          disabled={loading}
           onChange={(e) => onSearch(e.target.value)}
           sx={{ flex: 1, minWidth: 160 }}
         />
@@ -46,6 +48,7 @@ export default function TableList({
           size="small"
           exclusive
           value={filter}
+          disabled={loading}
           onChange={(_, v) => v && onFilter(v)}
         >
           {FILTERS.map((f) => (
@@ -59,14 +62,20 @@ export default function TableList({
           variant="outlined"
           startIcon={<RefreshIcon />}
           onClick={onRefresh}
+          disabled={loading}
         >
-          Refresh
+          {loading ? "Refreshing..." : "Refresh"}
         </Button>
       </Box>
 
       <TableContainer
         component={Box}
-        sx={{ border: "1px solid", borderColor: "divider", borderRadius: 1 }}
+        sx={{
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 1,
+          bgcolor: "background.paper",
+        }}
       >
         <Table size="small">
           <TableHead>
@@ -94,7 +103,9 @@ export default function TableList({
             </TableRow>
           </TableHead>
           <TableBody>
-            {filtered.length === 0 && (
+            {loading ? (
+              renderSkeletons()
+            ) : filtered.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={7}
@@ -111,82 +122,83 @@ export default function TableList({
                     : "No tables match filter"}
                 </TableCell>
               </TableRow>
+            ) : (
+              filtered.map((table) => (
+                <TableRow
+                  key={table.id}
+                  hover
+                  selected={selected?.id === table.id}
+                  onClick={() => onSelect(table)}
+                  sx={{ cursor: "pointer" }}
+                >
+                  <TableCell>
+                    <Box
+                      sx={{
+                        width: 7,
+                        height: 7,
+                        borderRadius: "50%",
+                        bgcolor: severityColor(table.issues),
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Typography fontFamily="monospace" fontSize={12.5}>
+                      {table.name}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      fontFamily="monospace"
+                      fontSize={11}
+                      color="text.secondary"
+                    >
+                      {table.fullyQualifiedName
+                        ?.split(".")
+                        .slice(0, -1)
+                        .join(".")}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Box display="flex" gap={0.5} flexWrap="wrap">
+                      {table.issues.map((iss, i) => (
+                        <Chip
+                          key={i}
+                          size="small"
+                          label={
+                            iss.type === "untagged_pii"
+                              ? "PII"
+                              : iss.type === "missing_owner"
+                                ? "no owner"
+                                : "no desc"
+                          }
+                          color={iss.severity === "high" ? "error" : "warning"}
+                        />
+                      ))}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      fontSize={11.5}
+                      color={table.owner ? "text.secondary" : "error.main"}
+                    >
+                      {table.owner?.name || "—"}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography fontFamily="monospace" fontSize={12}>
+                      {table.usageSummary?.dailyStats?.count ?? "—"}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      size="small"
+                      label={`${table.recs.length} fixes`}
+                      variant="outlined"
+                    />
+                  </TableCell>
+                </TableRow>
+              ))
             )}
-            {filtered.map((table) => (
-              <TableRow
-                key={table.id}
-                hover
-                selected={selected?.id === table.id}
-                onClick={() => onSelect(table)}
-                sx={{ cursor: "pointer" }}
-              >
-                <TableCell>
-                  <Box
-                    sx={{
-                      width: 7,
-                      height: 7,
-                      borderRadius: "50%",
-                      bgcolor: severityColor(table.issues),
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Typography fontFamily="monospace" fontSize={12.5}>
-                    {table.name}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    fontFamily="monospace"
-                    fontSize={11}
-                    color="text.secondary"
-                  >
-                    {table.fullyQualifiedName
-                      ?.split(".")
-                      .slice(0, -1)
-                      .join(".")}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Box display="flex" gap={0.5} flexWrap="wrap">
-                    {table.issues.map((iss, i) => (
-                      <Chip
-                        key={i}
-                        size="small"
-                        label={
-                          iss.type === "untagged_pii"
-                            ? "PII"
-                            : iss.type === "missing_owner"
-                              ? "no owner"
-                              : "no desc"
-                        }
-                        color={iss.severity === "high" ? "error" : "warning"}
-                      />
-                    ))}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    fontSize={11.5}
-                    color={table.owner ? "text.secondary" : "error.main"}
-                  >
-                    {table.owner?.name || "—"}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography fontFamily="monospace" fontSize={12}>
-                    {table.usageSummary?.dailyStats?.count ?? "—"}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    size="small"
-                    label={`${table.recs.length} fixes`}
-                    variant="outlined"
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -198,7 +210,11 @@ export default function TableList({
         mt={1}
         display="block"
       >
-        Showing {filtered.length} of {withIssues.length} tables with issues
+        {loading ? (
+          <Skeleton width={200} />
+        ) : (
+          `Showing ${filtered.length} of ${withIssues.length} tables with issues`
+        )}
       </Typography>
     </Box>
   );

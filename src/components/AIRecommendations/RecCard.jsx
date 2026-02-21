@@ -6,19 +6,10 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import ShieldIcon from "@mui/icons-material/Shield";
-import PersonIcon from "@mui/icons-material/Person";
-import DescriptionIcon from "@mui/icons-material/Description";
 
-const actionIcon = (action) =>
-  ({
-    tag_pii: <ShieldIcon fontSize="small" />,
-    assign_owner: <PersonIcon fontSize="small" />,
-    add_description: <DescriptionIcon fontSize="small" />,
-  })[action];
+import { actionIcon, confidenceColor } from "../../helpers/helper";
 
-const confidenceColor = (c) =>
-  ({ High: "success", Medium: "warning", Low: "default" })[c] || "default";
+
 
 export default function RecCard({ rec, applying, onApply, onDismiss }) {
   return (

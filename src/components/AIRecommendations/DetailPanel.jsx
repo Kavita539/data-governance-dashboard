@@ -10,6 +10,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import RecCard from "./RecCard";
 import ColumnsList from "./ColumnsList";
+import { detailPanel } from "../../helpers/helper";
 
 export default function DetailPanel({
   table,
@@ -59,19 +60,7 @@ export default function DetailPanel({
         borderBottom="1px solid"
         borderColor="divider"
       >
-        {[
-          { label: "Columns", value: table.columns?.length ?? "—" },
-          {
-            label: "Owner",
-            value: table.owner?.name || "None",
-            color: table.owner ? "text.primary" : "error.main",
-          },
-          {
-            label: "Daily Queries",
-            value: table.usageSummary?.dailyStats?.count ?? "—",
-          },
-          { label: "Issues", value: table.issues.length, color: "error.main" },
-        ].map(({ label, value, color }) => (
+        {detailPanel(table).map(({ label, value, color }) => (
           <Box key={label}>
             <Typography
               variant="caption"

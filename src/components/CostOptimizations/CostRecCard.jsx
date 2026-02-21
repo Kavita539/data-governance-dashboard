@@ -1,8 +1,6 @@
 import { Box, Button, Chip, Paper, Typography } from "@mui/material";
 
-const impactColor = (impact) =>
-  ({ High: "error.main", Medium: "warning.main", Low: "info.main" })[impact] ||
-  "text.primary";
+import { costRecs } from "../../helpers/helper";
 
 export default function CostRecCard({ rec, isDone, onCreateTask, fmtCost }) {
   return (
@@ -40,23 +38,7 @@ export default function CostRecCard({ rec, isDone, onCreateTask, fmtCost }) {
           borderRadius: 1,
         }}
       >
-        {[
-          {
-            label: "Savings",
-            value: `${fmtCost(rec.savings)}/mo`,
-            color: "success.main",
-          },
-          {
-            label: "Impact",
-            value: rec.impact,
-            color: impactColor(rec.impact),
-          },
-          {
-            label: "Confidence",
-            value: rec.confidence,
-            color: rec.confidence === "High" ? "success.main" : "warning.main",
-          },
-        ].map(({ label, value, color }, i) => (
+        {costRecs(rec).map(({ label, value, color }, i) => (
           <Box
             key={label}
             px={1.25}

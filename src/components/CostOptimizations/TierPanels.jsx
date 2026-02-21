@@ -1,8 +1,7 @@
 import { Paper, Typography, Box } from "@mui/material";
 
 import TierRow from "./TierRow";
-
-const TIER_ORDER = ["T1", "T2", "T3", "T4", "T5"];
+import { TIER_ORDER } from "../../constants/constants";
 
 export default function TiersPanel({
   tiers,
