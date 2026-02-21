@@ -1,5 +1,6 @@
 {
   "name": "data-governance-dashboard",
+  "proxy": "https://sandbox.open-metadata.org",
   "private": true,
   "version": "0.0.0",
   "type": "module",
