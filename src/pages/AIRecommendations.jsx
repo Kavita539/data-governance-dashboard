@@ -1,46 +1,23 @@
-import { useCallback, useEffect, useState } from "react";
-import { Alert, Box, CircularProgress, Grid, Typography } from "@mui/material";
+import { useState } from "react";
+import { Alert, Box, Grid, Typography } from "@mui/material";
 
 import DetailPanel from "../components/AIRecommendations/DetailPanel";
 import TableList from "../components/AIRecommendations/TableList";
 import StatsBar from "../components/AIRecommendations/StatsBar";
-
-import {
-  addPIITags,
-  getTables,
-  updateTableDescription,
-  updateTableOwner,
-} from "../api";
-import { detectIssues, generateRecommendations } from "../api/governance";
 import Loader from "../components/Loader/Loader";
 
-export default function AIRecommendations({ onIssueCount }) {
-  const [tables, setTables] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+import { useTables } from "../context/TableContext";
+
+import { addPIITags, updateTableDescription, updateTableOwner } from "../api";
+import { detectIssues, generateRecommendations } from "../api/governance";
+
+export default function AIRecommendations() {
+  const { tables, loading, error, refresh } = useTables();
   const [selected, setSelected] = useState(null);
   const [applying, setApplying] = useState({});
   const [dismissed, setDismissed] = useState({});
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-
-  const loadTables = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getTables();
-      setTables(data);
-      onIssueCount?.(data.filter((t) => detectIssues(t).length > 0).length);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadTables();
-  }, []);
 
   const enriched = tables.map((t) => ({
     ...t,
@@ -82,7 +59,7 @@ export default function AIRecommendations({ onIssueCount }) {
           table.id,
           rec.metadata.columns.map((c) => c.name),
         );
-      await loadTables();
+      await refresh();
     } catch (e) {
       //   showToast(e.message, 'error');
     } finally {
@@ -132,7 +109,7 @@ export default function AIRecommendations({ onIssueCount }) {
             onSearch={setSearch}
             onFilter={setFilter}
             onSelect={setSelected}
-            onRefresh={loadTables}
+            onRefresh={refresh}
           />
         </Grid>
         <Grid item xs={12} md={4}>

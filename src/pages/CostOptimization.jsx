@@ -6,7 +6,8 @@ import TiersPanel from "../components/CostOptimizations/TierPanels";
 import RecsPanel from "../components/CostOptimizations/RecsPanel";
 import Loader from "../components/Loader/Loader";
 
-import { getTables } from "../api";
+import { useTables } from "../context/TableContext";
+
 import {
   calculateCost,
   categorizeTables,
@@ -19,18 +20,9 @@ const TIER_ORDER = ["T1", "T2", "T3", "T4", "T5"];
 const fmtCost = (n) => (n >= 1000 ? `$${(n / 1000).toFixed(1)}K` : `$${n}`);
 
 export default function CostOptimization() {
-  const [tables, setTables] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { tables, loading, error } = useTables();
   const [expanded, setExpanded] = useState({});
   const [taskDone, setTaskDone] = useState({});
-
-  useEffect(() => {
-    getTables()
-      .then(setTables)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
 
   if (loading) return <Loader text="Loading cost data..." />;
 
