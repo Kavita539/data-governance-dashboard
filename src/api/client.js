@@ -15,3 +15,11 @@ export async function fetchAPI(path, options = {}) {
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
   return res.json();
 }
+
+export async function patchTable(tableId, patchBody) {
+  return fetchAPI(`/tables/${tableId}`, {
+    method: "PATCH",
+    patch: true,
+    body: JSON.stringify(patchBody),
+  });
+}

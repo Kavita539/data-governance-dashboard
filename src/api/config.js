@@ -1,6 +1,6 @@
 export const BASE_URL = "/api/v1";
 
-let AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
+let AUTH_TOKEN = import.meta.env.VITE_APP_AUTH_TOKEN;
 
 export const setToken = (token) => {
   AUTH_TOKEN = token;
