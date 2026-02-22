@@ -1,7 +1,7 @@
 export function detectIssues(table) {
   const issues = [];
 
-  if (!table.owner) {
+  if (!table.owners || table.owners.length === 0) {
     issues.push({
       type: "missing_owner",
       severity: "high",

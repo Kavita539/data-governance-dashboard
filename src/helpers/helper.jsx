@@ -59,8 +59,8 @@ export const detailPanel =(table) => ( [
   { label: "Columns", value: table.columns?.length ?? "—" },
   {
     label: "Owner",
-    value: table.owner?.name || "None",
-    color: table.owner ? "text.primary" : "error.main",
+    value: table.owners?.[0]?.name || "None",
+    color: table.owners!== null || table.owners?.length > 0 ? "text.primary" : "error.main",
   },
   {
     label: "Daily Queries",

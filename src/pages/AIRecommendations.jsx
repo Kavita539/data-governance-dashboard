@@ -1,33 +1,27 @@
 import { useState } from "react";
-import {
-  Alert,
-  Box,
-  Grid,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Alert, Box, Grid, Typography } from "@mui/material";
 
 import DetailPanel from "../components/AIRecommendations/DetailPanel";
 import TableList from "../components/AIRecommendations/TableList";
 import StatsBar from "../components/AIRecommendations/StatsBar";
 import Loader from "../components/Loader/Loader";
+import { Toasts } from "../components/Commons/Toasts";
 
 import { useTables } from "../context/TableContext";
+import { useToast } from "../hooks/useToast";
 
 import { addPIITags, updateTableDescription, updateTableOwner } from "../api";
 import { detectIssues, generateRecommendations } from "../api/governance";
 
 export default function AIRecommendations() {
   const { tables, loading, error, refresh } = useTables();
+  const { toasts, showToast } = useToast();
+
   const [selected, setSelected] = useState(null);
   const [applying, setApplying] = useState({});
   const [dismissed, setDismissed] = useState({});
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const enriched = tables.map((t) => ({
     ...t,
@@ -60,18 +54,19 @@ export default function AIRecommendations() {
   async function applyRec(table, rec) {
     setApplying((p) => ({ ...p, [rec.id]: true }));
     try {
-      if (rec.action === "assign_owner")
-        await updateTableOwner(table.id, rec.metadata.owner);
-      else if (rec.action === "add_description")
-        await updateTableDescription(table.id, rec.metadata.description);
-      else if (rec.action === "tag_pii")
-        await addPIITags(
-          table.id,
-          rec.metadata.columns.map((c) => c.name),
-        );
+      if (rec.action === 'assign_owner') {
+        await updateTableOwner(table.id, rec.metadata.owner, showToast);
+        showToast(`Owner set: ${rec.metadata.owner}`);
+      } else if (rec.action === 'add_description') {
+        await updateTableDescription(table.id, rec.metadata.description, showToast);
+        showToast('Description updated');
+      } else if (rec.action === 'tag_pii') {
+        await addPIITags(table.id, rec.metadata.columns.map(c => c.name), showToast);
+        showToast(`PII tags applied to ${rec.metadata.columns.length} column(s)`);
+      }
       await refresh();
     } catch (e) {
-      //   showToast(e.message, 'error');
+        showToast(e.message, 'error');
     } finally {
       setApplying((p) => ({ ...p, [rec.id]: false }));
     }
@@ -185,6 +180,8 @@ export default function AIRecommendations() {
           )}
         </Grid>
       </Grid>
+
+      <Toasts toasts={toasts}/>
     </Box>
   );
 }

@@ -1,0 +1,17 @@
+import { useState } from "react";
+
+let toastId = 0;
+
+export function useToast() {
+  const [toasts, setToasts] = useState([]);
+
+  const showToast = (message, type = "success") => {
+    const id = ++toastId;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  };
+
+  return { toasts, showToast };
+}

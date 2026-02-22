@@ -12,7 +12,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
-const TIER_LABELS = { T1: "🔴", T2: "🟡", T3: "🔵", T4: "🟣", T5: "⚫" };
+import { TIER_COLUMNS, TIER_LABELS } from "../../constants/constants";
 
 export default function TierRow({
   tierId,
@@ -119,7 +119,7 @@ export default function TierRow({
 
       {/* Expandable Table */}
       <Collapse in={isOpen}>
-        <Box bgcolor="background.paper">
+        <Box bgcolor="background.paper" sx={{ overflow: "hidden" }}>
           {tier.tables.length === 0 ? (
             <Typography
               fontFamily="monospace"
@@ -131,67 +131,70 @@ export default function TierRow({
               No tables in this tier
             </Typography>
           ) : (
-            <Table size="small">
-              <TableHead>
-                <TableRow sx={{ bgcolor: "action.hover" }}>
-                  {[
-                    "Table",
-                    "Queries/day",
-                    "Percentile",
-                    "Owner",
-                    "Est. Monthly",
-                  ].map((h) => (
-                    <TableCell
-                      key={h}
-                      sx={{
-                        fontFamily: "monospace",
-                        fontSize: 11,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {h}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {tier.tables.map((t) => (
-                  <TableRow key={t.id} hover>
-                    <TableCell>
-                      <Typography fontFamily="monospace" fontSize={12}>
-                        {t.name}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography fontFamily="monospace">
-                        {t.usageSummary?.dailyStats?.count ?? 0}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography fontFamily="monospace" color="text.secondary">
-                        {(
-                          t.usageSummary?.dailyStats?.percentileRank ?? 0
-                        ).toFixed(1)}
-                        %
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        fontSize={11.5}
-                        color={t.owner ? "text.secondary" : "error.main"}
+            <Box sx={{ overflowX: "auto" }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ bgcolor: "action.hover" }}>
+                    {TIER_COLUMNS.map((h) => (
+                      <TableCell
+                        key={h}
+                        sx={{
+                          fontFamily: "monospace",
+                          fontSize: 11,
+                          fontWeight: 600,
+                        }}
                       >
-                        {t.owner?.name || "—"}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography fontFamily="monospace" color={tier.color}>
-                        {fmtCost(t._cost)}
-                      </Typography>
-                    </TableCell>
+                        {h}
+                      </TableCell>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {tier.tables.map((t) => (
+                    <TableRow key={t.id} hover>
+                      <TableCell>
+                        <Typography fontFamily="monospace" fontSize={12}>
+                          {t.name}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography fontFamily="monospace">
+                          {t.usageSummary?.dailyStats?.count ?? 0}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          fontFamily="monospace"
+                          color="text.secondary"
+                        >
+                          {(
+                            t.usageSummary?.dailyStats?.percentileRank ?? 0
+                          ).toFixed(1)}
+                          %
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          fontSize={11.5}
+                          color={
+                            t.owners !== null || t.owners?.length > 0
+                              ? "text.secondary"
+                              : "error.main"
+                          }
+                        >
+                          {t.owners?.[0]?.name || "—"}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography fontFamily="monospace" color={tier.color}>
+                          {fmtCost(t._cost ?? 0)}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
           )}
         </Box>
       </Collapse>

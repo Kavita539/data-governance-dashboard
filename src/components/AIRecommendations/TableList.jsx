@@ -179,9 +179,9 @@ export default function TableList({
                   <TableCell>
                     <Typography
                       fontSize={11.5}
-                      color={table.owner ? "text.secondary" : "error.main"}
+                      color={table.owners!== null || table.owners?.length > 0 ? "text.secondary" : "error.main"}
                     >
-                      {table.owner?.name || "—"}
+                      {table.owners?.[0]?.name || "—"}
                     </Typography>
                   </TableCell>
                   <TableCell>

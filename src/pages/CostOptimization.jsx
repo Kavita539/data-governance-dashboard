@@ -5,8 +5,10 @@ import StatsBar from "../components/CostOptimizations/StatsBar";
 import TiersPanel from "../components/CostOptimizations/TierPanels";
 import RecsPanel from "../components/CostOptimizations/RecsPanel";
 import Loader from "../components/Loader/Loader";
+import { Toasts } from "../components/Commons/Toasts";
 
 import { useTables } from "../context/TableContext";
+import { useToast } from "../hooks/useToast";
 
 import {
   calculateCost,
@@ -17,9 +19,10 @@ import {
 import { fmtCost } from "../helpers/helper";
 import { TIER_ORDER } from "../constants/constants";
 
-
 export default function CostOptimization() {
   const { tables, loading, error } = useTables();
+  const { toasts, showToast } = useToast();
+  
   const [expanded, setExpanded] = useState({});
   const [taskDone, setTaskDone] = useState({});
 
@@ -37,6 +40,7 @@ export default function CostOptimization() {
 
   function handleCreateTask(rec) {
     setTaskDone((p) => ({ ...p, [rec.id]: true }));
+    showToast(`Task created: ${rec.title}`);
   }
 
   return (
@@ -45,7 +49,7 @@ export default function CostOptimization() {
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
-      )}
+      )} 
 
       <StatsBar
         tables={tables}
@@ -95,6 +99,8 @@ export default function CostOptimization() {
           />
         </Grid>
       </Grid>
+
+      <Toasts toasts={toasts}/>
     </Box>
   );
 }
