@@ -37,30 +37,30 @@ export function detectIssues(table) {
   return issues;
 }
 
-export function generateRecommendations(table, issues) {
+export function generateRecommendations(table, issues, availableTeams) {
   return issues
     .map((issue) => {
       switch (issue.type) {
         case "missing_owner": {
-          const suggested = table.name.startsWith("dim_")
-            ? "Analytics Team"
-            : table.name.startsWith("fact_")
-              ? "Data Engineering"
-              : table.name.startsWith("stg_")
-                ? "Data Engineering"
-                : table.name.startsWith("tmp_")
-                  ? "Data Engineering"
-                  : "Analytics Team";
+          const targetTeamName = table.name.startsWith("dim_")
+            ? "test department"
+            : "test";
+
+          const teamEntity = availableTeams.find((team) =>
+            team.name.toLowerCase().includes(targetTeamName.toLowerCase()),
+          );
+
           return {
             id: `${table.id}-owner`,
             issue,
             title: "Assign Owner",
-            suggestion: suggested,
-            detail: `Suggested based on table naming convention`,
-            confidence: "Medium",
-            confidenceScore: 65,
+            suggestion: teamEntity ? teamEntity.displayName : targetTeamName,
             action: "assign_owner",
-            metadata: { owner: suggested },
+            metadata: {
+              ownerId: teamEntity?.id || null,
+              ownerType: "team",
+              ownerName: teamEntity?.name || targetTeamName,
+            },
           };
         }
         case "missing_description": {

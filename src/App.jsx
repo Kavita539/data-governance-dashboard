@@ -192,10 +192,10 @@ export default function App() {
   const [issueCount, setIssueCount] = useState(null);
 
   return (
-    <BrowserRouter>
-      <TableProvider onIssueCount={setIssueCount}>
+    <TableProvider onIssueCount={setIssueCount}>
+      <BrowserRouter>
         <Layout issueCount={issueCount} />
-      </TableProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </TableProvider>
   );
 }

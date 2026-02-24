@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Box, Grid, Typography } from "@mui/material";
 
 import DetailPanel from "../components/AIRecommendations/DetailPanel";
@@ -12,6 +12,7 @@ import { useToast } from "../hooks/useToast";
 
 import { addPIITags, updateTableDescription, updateTableOwner } from "../api";
 import { detectIssues, generateRecommendations } from "../api/governance";
+import { getTeams } from "../api/tables";
 
 export default function AIRecommendations() {
   const { tables, loading, error, refresh } = useTables();
@@ -22,11 +23,16 @@ export default function AIRecommendations() {
   const [dismissed, setDismissed] = useState({});
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const [availableTeams, setAvailableTeams] = useState([]);
+
+  useEffect(() => {
+    getTeams().then((data) => setAvailableTeams(data));
+  }, []);
 
   const enriched = tables.map((t) => ({
     ...t,
     issues: detectIssues(t),
-    recs: generateRecommendations(t, detectIssues(t)),
+    recs: generateRecommendations(t, detectIssues(t), availableTeams),
   }));
   const withIssues = enriched.filter((t) => t.issues.length > 0);
   const filtered = withIssues.filter((t) => {
@@ -52,21 +58,33 @@ export default function AIRecommendations() {
     : null;
 
   async function applyRec(table, rec) {
+    console.log(":::metaa", rec.metadata);
+
     setApplying((p) => ({ ...p, [rec.id]: true }));
     try {
-      if (rec.action === 'assign_owner') {
-        await updateTableOwner(table.id, rec.metadata.owner, showToast);
-        showToast(`Owner set: ${rec.metadata.owner}`);
-      } else if (rec.action === 'add_description') {
-        await updateTableDescription(table.id, rec.metadata.description, showToast);
-        showToast('Description updated');
-      } else if (rec.action === 'tag_pii') {
-        await addPIITags(table.id, rec.metadata.columns.map(c => c.name), showToast);
-        showToast(`PII tags applied to ${rec.metadata.columns.length} column(s)`);
+      if (rec.action === "assign_owner") {
+        await updateTableOwner(table.id, rec.metadata.ownerId, showToast);
+        showToast(`Owner set: ${rec.metadata.ownerName}`);
+      } else if (rec.action === "add_description") {
+        await updateTableDescription(
+          table.id,
+          rec.metadata.description,
+          showToast,
+        );
+        showToast("Description updated");
+      } else if (rec.action === "tag_pii") {
+        await addPIITags(
+          table,
+          rec.metadata.columns.map((c) => c.name),
+          showToast,
+        );
+        showToast(
+          `PII tags applied to ${rec.metadata.columns.length} column(s)`,
+        );
       }
       await refresh();
     } catch (e) {
-        showToast(e.message, 'error');
+      showToast(e.message, "error");
     } finally {
       setApplying((p) => ({ ...p, [rec.id]: false }));
     }
@@ -181,7 +199,7 @@ export default function AIRecommendations() {
         </Grid>
       </Grid>
 
-      <Toasts toasts={toasts}/>
+      <Toasts toasts={toasts} />
     </Box>
   );
 }

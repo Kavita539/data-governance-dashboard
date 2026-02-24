@@ -11,14 +11,33 @@ export async function getTables() {
   }
 }
 
-export async function updateTableOwner(tableId, ownerName, showToast) {
+export async function getTeams() {
+  try {
+    const response = await fetchAPI("/teams");
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch teams:", error);
+    return [];
+  }
+}
+
+export async function updateTableOwner(tableId, ownerId, showToast) {
   try {
     await patchTable(tableId, [
-      { op: "add", path: "/owners", value: [{ name: ownerName, type: "team" }] },
+      {
+        op: "add",
+        path: "/owners",
+        value: [
+          {
+            id: ownerId,
+            type: "team",
+          },
+        ],
+      },
     ]);
     return true;
   } catch (err) {
-    showToast("Failed to assign owner", "error");
+    showToast("Failed to assign owner: Check if team exists", "error");
     return false;
   }
 }
@@ -35,26 +54,39 @@ export async function updateTableDescription(tableId, description, showToast) {
   }
 }
 
-export async function addPIITags(tableId, columnNames, showToast) {
+export async function addPIITags(table, columnNames, showToast) {
+  if (!table?.columns) {
+    showToast("Table data is missing", "error");
+    return false;
+  }
+
   try {
-    await patchTable(
-      tableId,
-      columnNames.map((_, i) => ({
-        op: "add",
-        path: `/columns/${i}/tags`,
-        value: [
-          {
+    const operations = columnNames
+      .map((colName) => {
+        const index = table.columns.findIndex((c) => c.name === colName);
+
+        if (index === -1) return null;
+
+        return {
+          op: "add",
+          path: `/columns/${index}/tags/0`,
+          value: {
             tagFQN: "PII.Sensitive",
-            source: "Tag",
+            source: "Classification",
             labelType: "Manual",
             state: "Confirmed",
           },
-        ],
-      })),
-    );
+        };
+      })
+      .filter(Boolean);
+
+    if (operations.length === 0) return false;
+
+    await patchTable(table.id, operations);
     return true;
   } catch (err) {
-    showToast("Failed to add PII tags", "error");
+    console.error("Patch Error:", err);
+    showToast("Server rejected tag format", "error");
     return false;
   }
 }
