@@ -58,8 +58,6 @@ export default function AIRecommendations() {
     : null;
 
   async function applyRec(table, rec) {
-    console.log(":::metaa", rec.metadata);
-
     setApplying((p) => ({ ...p, [rec.id]: true }));
     try {
       if (rec.action === "assign_owner") {

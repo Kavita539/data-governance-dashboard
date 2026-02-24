@@ -16,7 +16,6 @@ export async function getTeams() {
     const response = await fetchAPI("/teams");
     return response.data;
   } catch (error) {
-    console.error("Failed to fetch teams:", error);
     return [];
   }
 }
@@ -85,7 +84,6 @@ export async function addPIITags(table, columnNames, showToast) {
     await patchTable(table.id, operations);
     return true;
   } catch (err) {
-    console.error("Patch Error:", err);
     showToast("Server rejected tag format", "error");
     return false;
   }
